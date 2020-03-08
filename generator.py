@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from random import randint
+import string
+from random import choice
 from copy import deepcopy
 from PIL import Image, ImageOps
 
@@ -43,7 +44,7 @@ def evolve(state):
 
 def generate_sprite():
     # Create 4x8 white noise
-    state = [[randint(0, 1) for _ in range(4)] for _ in range(8)]
+    state = [[choice([0, 1]) for _ in range(4)] for _ in range(8)]
     # Evolve 2 times
     return evolve(evolve(state))
 
@@ -79,8 +80,8 @@ def create_image(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0), bg_color=
 
 def main():
     img = create_image(generate_sprite())
-    # TODO: Save to a file before scalin and showing
-    ImageOps.scale(img, 16, Image.NONE).show()
+    random_filename = ''.join(choice(string.ascii_letters) for _ in range(16))
+    img.save(random_filename + '.png')
 
 
 if __name__ == "__main__":
