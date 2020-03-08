@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import string
+import argparse
 from random import choice
 from copy import deepcopy
 from PIL import Image
@@ -90,7 +91,17 @@ def create_sprite(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0), bg_color
 
 
 def main():
-    img = create_sprite()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--color', '-c', type=int, nargs=3, help="Main color of the sprite",
+                        default=(0, 255, 0))
+    parser.add_argument('--outline', '-o', type=int, nargs=3, help="Color of the sprite's outline",
+                        default=(0, 185, 0))
+    parser.add_argument('--background', '-b', type=int, nargs=3, help="Color of the background",
+                        default=(255, 255, 255))
+
+    args = parser.parse_args()
+
+    img = create_sprite(generate_bitmap(), tuple(args.color), tuple(args.outline), tuple(args.background))
     # Save image to a file as PNG with a random filename
     random_filename = ''.join(choice(string.ascii_letters) for _ in range(16))
     img.save(random_filename + '.png')
