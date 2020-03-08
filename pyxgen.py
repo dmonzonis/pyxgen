@@ -4,7 +4,7 @@
 import string
 from random import choice
 from copy import deepcopy
-from PIL import Image, ImageOps
+from PIL import Image
 
 
 def count_neighbors(state, x, y):
@@ -42,14 +42,17 @@ def evolve(state):
     return new_state
 
 
-def generate_sprite():
+def generate_bitmap():
+    """
+    Creates a 10x10 bitmap representing the sprite image.
+    The bitmap is a matrix with codes 0, 1 or 2.
+    0 means background, 1 normal color and 2 outline color.
+    """
     # Create 4x8 white noise
-    state = [[choice([0, 1]) for _ in range(4)] for _ in range(8)]
+    bitmap = [[choice([0, 1]) for _ in range(4)] for _ in range(8)]
     # Evolve 2 times
-    return evolve(evolve(state))
+    bitmap = evolve(evolve(bitmap))
 
-
-def create_image(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0), bg_color=(255, 255, 255)):
     # To add the outline, the image will grow in 2 pixels in each direction except the mirror
     for line in bitmap:
         line.insert(0, 0)
@@ -59,8 +62,16 @@ def create_image(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0), bg_color=
     for y in range(len(bitmap)):
         for x, cell in enumerate(bitmap[y]):
             if cell == 0 and count_neighbors(bitmap, x, y) > 0:
-                bitmap[y][x] = 2  # paint outline
+                bitmap[y][x] = 2  # mark as outline
 
+    return bitmap
+
+
+def create_sprite(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0), bg_color=(255, 255, 255)):
+    """
+    Processes the 10x10 bitmap and returns the image produced by interpreting the codes with
+    the given colors.
+    """
     # Mirror image
     for line in bitmap:
         line.extend(line[::-1])
@@ -79,7 +90,8 @@ def create_image(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0), bg_color=
 
 
 def main():
-    img = create_image(generate_sprite())
+    img = create_sprite()
+    # Save image to a file as PNG with a random filename
     random_filename = ''.join(choice(string.ascii_letters) for _ in range(16))
     img.save(random_filename + '.png')
 
