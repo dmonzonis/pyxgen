@@ -68,7 +68,8 @@ def generate_bitmap():
     return bitmap
 
 
-def create_sprite(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0), bg_color=(255, 255, 255)):
+def create_sprite(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0),
+                  bg_color=(255, 255, 255), transparency=False):
     """
     Processes the 10x10 bitmap and returns the image produced by interpreting the codes with
     the given colors.
@@ -78,9 +79,9 @@ def create_sprite(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0), bg_color
         line.extend(line[::-1])
 
     # Create image
-    img = Image.new('RGB', (10, 10))
+    img = Image.new('RGBA', (10, 10))
     color_map = {
-        0: bg_color,
+        0: bg_color if not transparency else (255, 255, 255, 0),
         1: color,
         2: outline_color
     }
@@ -98,10 +99,14 @@ def main():
                         default=(0, 185, 0))
     parser.add_argument('--background', '-b', type=int, nargs=3, help="Color of the background",
                         default=(255, 255, 255))
+    parser.add_argument('--transparency', '-t', action='store_true',
+                        help="Use transparent background")
 
     args = parser.parse_args()
 
-    img = create_sprite(generate_bitmap(), tuple(args.color), tuple(args.outline), tuple(args.background))
+    img = create_sprite(generate_bitmap(), tuple(args.color),
+                        tuple(args.outline), tuple(args.background),
+                        args.transparency)
     # Save image to a file as PNG with a random filename
     random_filename = ''.join(choice(string.ascii_letters) for _ in range(16))
     img.save(random_filename + '.png')
