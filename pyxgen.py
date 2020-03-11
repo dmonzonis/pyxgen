@@ -5,7 +5,7 @@ import string
 import argparse
 from random import choice
 from copy import deepcopy
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 def count_neighbors(state, x, y):
@@ -101,6 +101,8 @@ def main():
                         default=(255, 255, 255))
     parser.add_argument('--transparency', '-t', action='store_true',
                         help="Use transparent background")
+    parser.add_argument('--size', '-s', type=int, default=10,
+                        help="Desired size in pixels for the desired result image")
 
     args = parser.parse_args()
 
@@ -109,6 +111,9 @@ def main():
                         args.transparency)
     # Save image to a file as PNG with a random filename
     random_filename = ''.join(choice(string.ascii_letters) for _ in range(16))
+    # Scale the image to the desired size
+    if args.size > 10:
+        img = ImageOps.scale(img, args.size / 10, resample=Image.NONE)
     img.save(random_filename + '.png')
 
 
