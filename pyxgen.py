@@ -7,6 +7,8 @@ from random import choice
 from copy import deepcopy
 from PIL import Image, ImageOps
 
+OUTLINE_DARKEN_RATE = 90
+
 
 def count_neighbors(state, x, y):
     """
@@ -68,7 +70,7 @@ def generate_bitmap():
     return bitmap
 
 
-def create_sprite(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0),
+def create_sprite(bitmap, color=(0, 255, 0), outline_color=None,
                   bg_color=(255, 255, 255), transparency=False):
     """
     Processes the 10x10 bitmap and returns the image produced by interpreting the codes with
@@ -77,6 +79,11 @@ def create_sprite(bitmap, color=(0, 255, 0), outline_color=(0, 185, 0),
     # Mirror image
     for line in bitmap:
         line.extend(line[::-1])
+
+    # If no outline color is specified, use a darker version of the main color
+    if outline_color is None:
+        # TODO: let user choose outline darken rate
+        outline_color = tuple([max(0, color[i] - OUTLINE_DARKEN_RATE) for i in range(len(color))])
 
     # Create image
     img = Image.new('RGBA', (10, 10))
@@ -95,8 +102,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--color', '-c', type=int, nargs=3, help="Main color of the sprite",
                         default=(0, 255, 0))
-    parser.add_argument('--outline', '-o', type=int, nargs=3, help="Color of the sprite's outline",
-                        default=(0, 185, 0))
+    parser.add_argument('--outline', '-o', type=int, nargs=3, help="Color of the sprite's outline")
     parser.add_argument('--background', '-b', type=int, nargs=3, help="Color of the background",
                         default=(255, 255, 255))
     parser.add_argument('--transparency', '-t', action='store_true',
@@ -106,9 +112,9 @@ def main():
 
     args = parser.parse_args()
 
+    outline = args.outline and tuple(args.outline)
     img = create_sprite(generate_bitmap(), tuple(args.color),
-                        tuple(args.outline), tuple(args.background),
-                        args.transparency)
+                        outline, tuple(args.background), args.transparency)
     # Save image to a file as PNG with a random filename
     random_filename = ''.join(choice(string.ascii_letters) for _ in range(16))
     # Scale the image to the desired size
