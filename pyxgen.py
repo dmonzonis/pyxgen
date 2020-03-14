@@ -3,7 +3,7 @@
 
 import string
 import argparse
-from random import choice
+from random import choice, randint
 from copy import deepcopy
 from PIL import Image, ImageOps
 
@@ -109,10 +109,17 @@ def main():
                         help="Use transparent background")
     parser.add_argument('--size', '-s', type=int, default=10,
                         help="Desired size in pixels for the desired result image")
+    parser.add_argument('--random-color', '-r', action='store_true',
+                        help="The main color used will be random, and the outline will be automatically darkened")
 
     args = parser.parse_args()
 
     outline = args.outline and tuple(args.outline)
+    if args.random_color:
+        # Set random color regardless of what was set in the args
+        args.color = [randint(0, 255) for _ in range(3)]
+
+    # Generate image
     img = create_sprite(generate_bitmap(), tuple(args.color),
                         outline, tuple(args.background), args.transparency)
     # Save image to a file as PNG with a random filename
